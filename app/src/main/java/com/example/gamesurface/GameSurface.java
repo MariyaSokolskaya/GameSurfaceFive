@@ -19,22 +19,39 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
     float touchX, touchY; //координаты точки касания
     float dx, dy; // смещения по осям
     SurfaceThread thread;
+    float canvasWidth, canvasHeight;
+    boolean isFirstFrame = true;
+    Sprite sprite;
     public GameSurface(Context context) {
         super(context);
-        image = BitmapFactory.decodeResource(getResources(), R.drawable.cat_head);
+        image = BitmapFactory.decodeResource(getResources(), R.drawable.sprites);
         holder = getHolder();
         holder.addCallback(this); //"активировали" интерфейс
         curX = curY = 200;
         paint = new Paint();
-
+        sprite = new Sprite(image, curX, curY);
     }
 
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        canvas.drawBitmap(image, curX, curY, paint);
-        curX += dx;
-        curY += dy;
+        if (isFirstFrame) {
+            canvasWidth = canvas.getWidth();
+            canvasHeight = canvas.getHeight();
+            isFirstFrame = !isFirstFrame;
+        }
+//        canvas.drawBitmap(image, curX, curY, paint);
+//        curX += dx;
+//        curY += dy;
+//        controlRoute();
+        sprite.draw(canvas);
+    }
+
+    void controlRoute(){
+        if (curX < 10 || curX > canvasWidth - image.getWidth() - 10)
+            dx = -dx;
+        if (curY < 10 || curY > canvasHeight - image.getHeight()- 10)
+            dy = -dy;
     }
 
     @Override
@@ -42,7 +59,9 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback {
         if (event.getAction() == MotionEvent.ACTION_DOWN){
             touchX = event.getX();
             touchY = event.getY();
-            calculation();
+            //calculation();
+            sprite.setTx(touchX);
+            sprite.setTy(touchY);
         }
         return true;
     }
